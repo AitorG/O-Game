@@ -24,7 +24,6 @@ include_once XGP_ROOT . 'application/libraries/adm/AdministrationLib.php';
 
 // check if SSL is setted
 AdministrationLib::secureConnection();
-AdministrationLib::updateRequired();
 
 $page       = isset($_GET['page']) ? $_GET['page'] : 'home';
 $file_name  = XGP_ROOT . ADMIN_PATH . $page . '.php';
