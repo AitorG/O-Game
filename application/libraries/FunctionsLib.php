@@ -376,35 +376,59 @@ abstract class FunctionsLib extends XGPCore
     /**
      * sendMessage
      *
-     * @param int    $to      To
-     * @param int    $sender  Sender
-     * @param int    $time    Time
-     * @param int    $type    Type
-     * @param string $from    From
-     * @param string $subject Subject
-     * @param string $message Message
+     * @param int    $to        To
+     * @param int    $sender    Sender
+     * @param int    $time      Time
+     * @param int    $type      Type
+     * @param string $from      From
+     * @param string $subject   Subject
+     * @param string $message   Message
+     * @param bool   $allowHtml Allow HTML
      *
      * @return void
      */
-    public static function sendMessage($to, $sender, $time = '', $type = '', $from = '', $subject = '', $message = '')
+    public static function sendMessage($to, $sender, $time = '', $type = '', $from = '', $subject = '', $message = '', $allowHtml = false)
     {
-        if ($time == '') {
+        $options    = new MessagesOptions();
+        $options->setTo($to);
+        $options->setSender($sender);
+        $options->setTime($time);
 
-            $time   = time();
+        switch($type) {
+            case 0:
+                $type   = MessagesTypes::espio;
+                break;
+            case 1:
+                $type   = MessagesTypes::combat;
+                break;
+            case 2:
+                $type   = MessagesTypes::exp;
+                break;
+            case 3:
+                $type   = MessagesTypes::ally;
+                break;
+            case 4:
+                $type   = MessagesTypes::user;
+                break;
+            default:
+            case 5:
+                $type   = MessagesTypes::general;
+                break;
         }
 
-        $message    = (strpos($message, '/admin.php/') === false) ? $message : '';
+        $options->setType($type);
+        $options->setFrom($from);
+        $options->setSubject($subject);
 
-        parent::$db->query(
-            "INSERT INTO " . MESSAGES . " SET
-            `message_receiver` = '" . $to . "',
-            `message_sender` = '" . $sender . "',
-            `message_time` = '" . $time . "',
-            `message_type` = '" . $type . "',
-            `message_from` = '" . $from . "',
-            `message_subject` = '" . $subject . "',
-            `message_text` 	= '" . parent::$db->escapeValue($message) . "';"
-        );
+        if ($allowHtml) {
+
+            $options->setMessageFormat(MessagesFormat::html);
+        }
+
+        $options->setMessageText($message);
+
+        $messenger = new Messenger();
+        $messenger->sendMessage($options);
     }
     
     /**
